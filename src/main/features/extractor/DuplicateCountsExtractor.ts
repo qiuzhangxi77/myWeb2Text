@@ -16,9 +16,9 @@ export class DuplicateCountsExtractor implements BlockFeatureExtractor  {
       const textCount = textCountMap.get(node.text);
       const classCount = classCountMap.get(node.classSelector());
       return [
-        textCount > 1 ? 1 : 0,
-        textCount > 10 ? 1 : 0,
-        classCount / cdom.leaves.length
+        textCount > 1 ? 1.0 : -1.0,
+        textCount > 10 ? 1.0 : -1.0,
+        Math.floor(classCount / cdom.leaves.length)
       ];
     }
   }

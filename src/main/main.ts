@@ -83,7 +83,7 @@ export function main_cdom(inputHtmlName: string) {
   
     const featureExtractor = new FeatureExtractor(allBlockFeatureExtractor, allEdgeFeatureExtractor);
     const features = featureExtractor.apply(cdom);
-    console.log("features: ", features);
+    // console.log("features: ", features);
   
     fs.writeFileSync("step_1_extracted_features_block_features.csv", features.blockFeatures.join('\n'));
     fs.writeFileSync("step_1_extracted_features_edge_features.csv", features.edgeFeatures.join('\n'));
@@ -118,7 +118,7 @@ export function main_result(inputHtmlName:string, labelsFileName: string, output
     // ts-node main.ts cdomFeatures input.html
 
 // step2: train the cnn network with the cleaneval dataset(python), and get classify labels
-//python python\main.py classify D:\MyGitHub\myWeb2Text\src\main\step_1_extracted_features D:\MyGitHub\myWeb2Text\src\main\classifyLabelsByPython
+//python python\main.py classify step_1_extracted_features classifyLabelsByPython
 
 // step3: apply the classify labels to the html, and it should be displayed as text only include main content 
 // type: result

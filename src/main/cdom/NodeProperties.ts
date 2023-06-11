@@ -48,7 +48,6 @@ export class NodeProperties {
     this.totalWordLength = totalWordLength;
     this.endsWithPunctuation = endsWithPunctuation;
     this.endsWithQuestionMark = endsWithQuestionMark;
-    // cannot get node location now cause cheerio need to configure with withStartIndices option on handler
     this.startPosition = startPosition;
     this.endPosition = endPosition;
     this.nChildrenDeep = nChildrenDeep;
@@ -96,51 +95,68 @@ export class NodeProperties {
         // If there are no children, this is a leaf
         case 0: {
             const text = DOM.text(domnode).trim();
-            const words = text.split("\\W+").filter(x => x.length > 0);
+            const words = text.split(/\W+/).filter(x => x.length > 0);
             const sentences = Util.splitSentences(text);
     
             const regexEmail = new RegExp("\\b(?=[^\\s]+)(?=(\\w+)@([\\w\\.]+))\\b");
             const regexUrl = new RegExp("\\b(https?|ftp)://[^\\s/$.?#].[^\\s]*\\b");
             const regexYear = new RegExp("\\b\\d{4}\\b");
+
+            const nCharacters = Math.max(text.length, 1);
+            const nWords = words.length;
+            const nSentences = sentences.length;
+            const nPunctuation = text.split("").filter(x => Settings.punctuation.includes(x)).length;
+            const nNumeric = text.split("").filter(x => x.charCodeAt(0) >= 48 && x.charCodeAt(0) <= 57).length;
+            const nDashes = text.split("").filter(x => Settings.dashes.includes(x)).length;
+            const nStopwords = words.filter(x => Settings.stopwords.includes(x)).length;
+            const nWordsWithCapital = words.filter(x => x.charCodeAt(0) >= 65 && x.charCodeAt(0) <= 90).length;
+            const nCharsInLink = isTag(domnode) && domnode.tagName === "a" ? text.length : 0;
+            const totalWordLength = words.map(w => w.length).reduce((a, b) => a + b, 0);
+            const endsWithPunctuation = text.length > 0 ? Settings.punctuation.includes(text[text.length - 1]) : false;
+            const endsWithQuestionMark = text.length > 0 ? text[text.length - 1] === "?" : false;
+            const startPosition = domnode.startIndex;
+            const endPosition = domnode.endIndex;
+            const nChildrenDeep = 0;
+            const containsCopyright = text.includes("©");
+            const containsEmail = regexEmail.test(text);
+            const containsUrl = regexUrl.test(text);
+            const containsYear = regexYear.test(text);
+            const blockBreakBefore = domnode.previousSibling !== null && isTag(domnode.previousSibling) && Settings.blockTags.includes(domnode.previousSibling.tagName);
+            const blockBreakAfter = domnode.nextSibling !== null && isTag(domnode.nextSibling) && Settings.blockTags.includes(domnode.nextSibling.tagName);
+            const brBefore = domnode.previousSibling !== null && isTag(domnode.previousSibling)&& domnode.previousSibling.tagName === "br";
+            const brAfter = domnode.nextSibling !== null && isTag(domnode.nextSibling) && domnode.nextSibling.tagName === "br";
+            const containsForm = domnode instanceof Element &&  !!getElementsByTagName("input", domnode, true).length;
             
-          return new NodeProperties(
-                Math.max(text.length, 1),
-                words.length,
-                sentences.length,
-                text.split("").filter(x => Settings.punctuation.includes(x)).length,
-                text.split("").filter(x => x.charCodeAt(0) >= 48 && x.charCodeAt(0) <= 57).length,
-                text.split("").filter(x => Settings.dashes.includes(x)).length,
-                words.filter(x => Settings.stopwords.includes(x)).length,
-                words.filter(x => x.charCodeAt(0) >= 65 && x.charCodeAt(0) <= 90).length,
-                // domnode.nodeName === "a" ? text.length : 0,
-                // NodeProperties.getElementTagName(domnode) === "a" ? text.length : 0,
-                isTag(domnode) && domnode.tagName === "a" ? text.length : 0,
-                words.map(w => w.length).reduce((a, b) => a + b, 0),
-                text.length > 0 ? Settings.punctuation.includes(text[text.length - 1]) : false,
-                text.length > 0 ? text[text.length - 1] === "?" : false,
-                // domnode.startPosition,
-                // domnode.endPosition,
-                domnode.startIndex,
-                domnode.endIndex,
-                0,
-                text.includes("©") || text.includes("©️"),
-                regexEmail.test(text),
-                regexUrl.test(text),
-                regexYear.test(text),
-                // domnode.previousSibling !== null && Settings.blockTags.includes(domnode.previousSibling.nodeName),
-                // domnode.nextSibling !== null && Settings.blockTags.includes(domnode.nextSibling.nodeName),
-                // domnode.previousSibling !== null && domnode.previousSibling.nodeName === "br",
-                // domnode.nextSibling !== null && domnode.nextSibling.nodeName === "br",
-                // domnode instanceof jnodes.Element && !domnode.getElementsByTag("input").isEmpty(),
-                domnode.previousSibling !== null && isTag(domnode.previousSibling) && Settings.blockTags.includes(domnode.previousSibling.tagName),
-                domnode.nextSibling !== null && isTag(domnode.nextSibling) && Settings.blockTags.includes(domnode.nextSibling.tagName),
-                domnode.previousSibling !== null && isTag(domnode.previousSibling)&& domnode.previousSibling.tagName === "br",
-                domnode.nextSibling !== null && isTag(domnode.nextSibling) && domnode.nextSibling.tagName === "br",
-                domnode instanceof Element &&  !!getElementsByTagName("input", domnode, true).length,
+            const features = new NodeProperties(
+              nCharacters,
+              nWords,
+              nSentences,
+              nPunctuation,
+              nNumeric,
+              nDashes,
+              nStopwords,
+              nWordsWithCapital,
+              nCharsInLink,
+              totalWordLength,
+              endsWithPunctuation,
+              endsWithQuestionMark,
+              startPosition,
+              endPosition,
+              nChildrenDeep,
+              containsCopyright,
+              containsEmail,
+              containsUrl,
+              containsYear,
+              blockBreakBefore,
+              blockBreakAfter,
+              brBefore,
+              brAfter,
+              containsForm
           );
+          return features;
         }
 
-        case 1: {
+      case 1: {
             const cfeat = children[0].properties;
             // const tag = domnode.nodeName;
             // const prevtag = domnode.previousSibling?.nodeName || "[none]";
@@ -184,38 +200,58 @@ export class NodeProperties {
               NodeProperties.propagateDownBlockTagRight(children);
             }
           
-            return new NodeProperties(
-              cfeat.nCharacters,
-              cfeat.nWords,
-              cfeat.nSentences,
-              cfeat.nPunctuation,
-              cfeat.nNumeric,
-              cfeat.nDashes,
-              cfeat.nStopwords,
-              cfeat.nWordsWithCapital,
-              //  domnode.nodeName === "a" ? cfeat.nCharacters : cfeat.nCharsInLink,
-              // NodeProperties.getElementTagName(domnode) === "a" ? cfeat.nCharacters : cfeat.nCharsInLink,
-              isTag(domnode) && domnode.tagName === "a" ? cfeat.nCharacters : cfeat.nCharsInLink,
-              cfeat.totalWordLength,
-              cfeat.endsWithPunctuation,
-              cfeat.endsWithQuestionMark,
-              //   cfeat.startPosition > -1 ? cfeat.startPosition : domnode.startPosition,
-              //   cfeat.endPosition > -1 ? cfeat.endPosition : domnode.endPosition,
-              cfeat.startPosition > -1 ? cfeat.startPosition : domnode.startIndex,
-              cfeat.endPosition > -1 ? cfeat.endPosition : domnode.endIndex,
-              cfeat.nChildrenDeep,
-              cfeat.containsCopyright,
-              cfeat.containsEmail,
-              cfeat.containsUrl,
-              cfeat.containsYear,
+            const nCharacters = cfeat.nCharacters;
+            const nWords = cfeat.nWords;
+            const nSentences = cfeat.nSentences;
+            const nPunctuation = cfeat.nPunctuation;
+            const nNumeric = cfeat.nNumeric;
+            const nDashes = cfeat.nDashes;
+            const nStopwords = cfeat.nStopwords;
+            const nWordsWithCapital = cfeat.nWordsWithCapital;
+            const nCharsInLink = isTag(domnode) && domnode.tagName === "a" ? cfeat.nCharacters : cfeat.nCharsInLink;
+            const totalWordLength = cfeat.totalWordLength;
+            const endsWithPunctuation = cfeat.endsWithPunctuation;
+            const endsWithQuestionMark = cfeat.endsWithQuestionMark;
+            const startPosition = cfeat.startPosition > -1 ? cfeat.startPosition : domnode.startIndex;
+            const endPosition = cfeat.endPosition > -1 ? cfeat.endPosition : domnode.endIndex;
+            const nChildrenDeep = cfeat.nChildrenDeep;
+            const containsCopyright = cfeat.containsCopyright;
+            const containsEmail = cfeat.containsEmail;
+            const containsUrl = cfeat.containsUrl;
+            const containsYear = cfeat.containsYear;
+            // blockBreakBefore;
+            // blockBreakAfter;
+            const brBefore = cfeat.brBefore || (domnode.previousSibling !== null &&  isTag(domnode) && domnode.tagName === "br");
+            const brAfter = cfeat.brAfter || (domnode.nextSibling !== null &&  isTag(domnode) && domnode.tagName === "br");
+            const containsForm = cfeat.containsForm;
+
+            const features = new NodeProperties(
+              nCharacters,
+              nWords,
+              nSentences,
+              nPunctuation,
+              nNumeric,
+              nDashes,
+              nStopwords,
+              nWordsWithCapital,
+              nCharsInLink,
+              totalWordLength,
+              endsWithPunctuation,
+              endsWithQuestionMark,
+              startPosition,
+              endPosition,
+              nChildrenDeep,
+              containsCopyright,
+              containsEmail,
+              containsUrl,
+              containsYear,
               blockBreakBefore,
               blockBreakAfter,
-              cfeat.brBefore || (domnode.previousSibling !== null &&  isTag(domnode) && domnode.tagName === "br"),
-                //   domnode.previousSibling.nodeName === "br"),
-              cfeat.brAfter || (domnode.nextSibling !== null &&  isTag(domnode) && domnode.tagName === "br"),
-                //   domnode.nextSibling.nodeName === "br"),
-              cfeat.containsForm,
+              brBefore,
+              brAfter,
+              containsForm
             );
+            return features;
         }
 
         default: {
@@ -256,32 +292,57 @@ export class NodeProperties {
             if (blockBreakAfter) {
               NodeProperties.propagateDownBlockTagRight(children);
             }
-          
+            
+            const nCharacters = 0;
+            const nWords = 0;
+            const nSentences = 0;
+            const nPunctuation = 0;
+            const nNumeric = 0;
+            const nDashes = 0;
+            const nStopwords = 0;
+            const nWordsWithCapital = 0;
+            const nCharsInLink = 0;
+            const totalWordLength = 0;
+            const endsWithPunctuation = cfeat[cfeat.length - 1].endsWithPunctuation;
+            const endsWithQuestionMark = cfeat[cfeat.length - 1].endsWithQuestionMark;
+            const startPosition = cfeat[0].startPosition;
+            const endPosition = cfeat[cfeat.length - 1].endPosition;
+            const nChildrenDeep = cfeat.length;
+            const containsCopyright = false;
+            const containsEmail = false;
+            const containsUrl = false;
+            const containsYear = false;
+            // blockBreakBefore;
+            // blockBreakAfter;
+            const brBefore = prevtag === "br";
+            const brAfter = nexttag === "br";
+            const containsForm = domnode instanceof Element &&  !!getElementsByTagName("input", domnode, true).length;
+
             const features = new NodeProperties(
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                cfeat[cfeat.length - 1].endsWithPunctuation,
-                cfeat[cfeat.length - 1].endsWithQuestionMark,
-                cfeat[0].startPosition,
-                cfeat[cfeat.length - 1].endPosition,
-                cfeat.length,
-                false,
-                false,
-                false,
-                false,
-                blockBreakBefore,
-                blockBreakAfter,
-                prevtag === "br",
-                nexttag === "br",
-                domnode instanceof Element &&  !!getElementsByTagName("input", domnode, true).length,
+              nCharacters,
+              nWords,
+              nSentences,
+              nPunctuation,
+              nNumeric,
+              nDashes,
+              nStopwords,
+              nWordsWithCapital,
+              nCharsInLink,
+              totalWordLength,
+              endsWithPunctuation,
+              endsWithQuestionMark,
+              startPosition,
+              endPosition,
+              nChildrenDeep,
+              containsCopyright,
+              containsEmail,
+              containsUrl,
+              containsYear,
+              blockBreakBefore,
+              blockBreakAfter,
+              brBefore,
+              brAfter,
+              containsForm
             );
           
             cfeat.forEach((x) => {

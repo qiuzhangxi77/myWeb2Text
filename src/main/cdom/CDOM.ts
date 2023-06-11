@@ -127,7 +127,7 @@ export class CDOMFactory {
           node.attributes = {...node.attributes, ...child.attributes}
           node.text = child.text;
           CDOMFactory.setPointers(node.children, node);
-          node.properties = NodeProperties.fromNode(domnode, node.children);
+          node.properties = NodeProperties.fromNode(domnode, [child]);
           return node;
         }
         else {
