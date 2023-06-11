@@ -42,7 +42,7 @@ export class CDOM {
   public classSelectorCounts() {
     const map = new Map<string, number>();
     this.leaves.forEach(leaf => {
-      const classSelector = [...leaf.classNames].join(', ');
+      const classSelector = leaf.classSelector();
       map.set(classSelector, (map.get(classSelector) || 0) + 1);
     });
     return map;
@@ -67,7 +67,8 @@ export class CDOMFactory {
 
   
   public parseBody(html: string) {
-    const $ = cheerio.load(html);
+    /** The start index of the node. Requires `withStartIndices` on the handler to be `true. */
+    const $ = cheerio.load(html, { withStartIndices: true });
     $.parseHTML(html);
     const root = $.root();
     console.log("root: ", root.html())
@@ -102,8 +103,9 @@ export class CDOMFactory {
       else if (isTag(domnode)) {
         const node = new Node();
         node.tags = [domnode.name];
-        node.classNames = [new Set<string>(domnode.attribs.class?.split(' ') || [])],
-        node.attributes = domnode.attribs,
+        console.log("domnode.attribs: ", domnode.attribs);
+        node.classNames = [new Set<string>(domnode.attribs?.class?.split(' '))];
+        node.attributes = domnode.attribs;
         node.children = domnode.children
             .map(CDOMFactory.createNodeWithChildrenAndFeatures)
             .filter(child => child !== null) as Node[];

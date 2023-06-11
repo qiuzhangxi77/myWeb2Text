@@ -46,7 +46,8 @@ export class LeafBlockExtractor implements BlockFeatureExtractor {
       const bodyEnd = cdom.leaves[cdom.leaves.length - 1]?.properties.endPosition ?? cdom.root.properties.endPosition;
       const bodyLength = bodyEnd - bodyStart;
       const blockPos = 0.5 * (p.endPosition + p.startPosition);
-      const relPos = (blockPos - bodyStart) / bodyLength;
+      // const relPos = (blockPos - bodyStart) / bodyLength;
+      const relPos = 100;
   
       const capRat = p.nWordsWithCapital / p.nWords;
   

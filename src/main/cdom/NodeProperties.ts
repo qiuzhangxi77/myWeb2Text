@@ -48,8 +48,9 @@ export class NodeProperties {
     this.totalWordLength = totalWordLength;
     this.endsWithPunctuation = endsWithPunctuation;
     this.endsWithQuestionMark = endsWithQuestionMark;
-    this.startPosition = startPosition;
-    this.endPosition = endPosition;
+    // cannot get node location now cause cheerio need to configure with withStartIndices option on handler
+    this.startPosition = startPosition ? startPosition : 0;
+    this.endPosition = endPosition ? endPosition : 0;
     this.nChildrenDeep = nChildrenDeep;
     this.containsCopyright = containsCopyright;
     this.containsEmail = containsEmail;
