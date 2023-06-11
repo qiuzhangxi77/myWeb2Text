@@ -11,7 +11,7 @@ export class PageFeatures {
     if (this.blockFeatures[0] && this.edgeFeatures[0] && this.blockFeatures[0].length === this.edgeFeatures[0].length + 1) {
       console.log("There should be one more block feature than edge features");
     }
-    this.nBlocks = this.blockFeatures.cols;
+    this.nBlocks = this.blockFeatures[0].length;
   }
 
   public toString(): string {

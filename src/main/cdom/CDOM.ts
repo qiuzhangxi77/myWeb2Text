@@ -2,13 +2,13 @@ import * as cheerio from 'cheerio';
 import * as fs from 'fs';
 import path from "path";
 import { fileURLToPath } from 'url';
+import * as Util from '../utilities/Util.js'
 
 import { Node } from './Node.js'
 import { NodeProperties } from './NodeProperties.js'
 import { DOM } from './DOM.js'
 import { isText, isTag } from 'domhandler'
 import { FeatureExtractor } from '../features/FeatureExtractor.js';
-import { BlockFeatureExtractor } from '../features/BlockFeatureExtractor.js';
 
 import { NodeBlockExtractor } from '../features/extractor/NodeBlockExtractor.js';
 import { DuplicateCountsExtractor } from '../features/extractor/DuplicateCountsExtractor.js';
@@ -68,7 +68,14 @@ export class CDOMFactory {
   
   public parseBody(html: string) {
     /** The start index of the node. Requires `withStartIndices` on the handler to be `true. */
-    const $ = cheerio.load(html, { withStartIndices: true });
+    // Cheerio is using parse5 by default. In order to get the startIndex property, 
+    // you have to instruct Cheerio to use htmlparser2 by setting the xmlMode option to true
+    const options = {
+      xmlMode: true,
+      withStartIndices: true,
+      withEndIndices: true
+    }
+    const $ = cheerio.load(html, options);
     $.parseHTML(html);
     const root = $.root();
     console.log("root: ", root.html())
@@ -146,81 +153,3 @@ export class CDOMFactory {
   }
 
 }
-
-
-
-
-
-
-
-export default function parseHTML() {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-
-  // 读取本地 HTML 文件
-  const html = fs.readFileSync(path.join(__dirname, '/input.html'), 'utf8');
-
-  // 使用 Cheerio 加载 HTML
-  // const $ = cheerio.load(html);
-  // const $ = cheerio.load('');
-  // $.parseHTML(html);
-
-  // // 移除空节点或只包含空白的节点
-  // $('*:empty').remove();
-
-  // // 移除没有任何内容的节点
-  // $('br, checkbox, head, hr, iframe, img, input').remove();
-
-  // // 合并单个子节点和它们的父节点
-  // $('*:has(:only-child)').each(function () {
-  //   const parent = $(this);
-  //   const child = parent.children().first();
-  //   parent.replaceWith(child);
-  // });
-  // console.log("dom: ",$.root().html());
-
-  var domFactory = new CDOMFactory(html);
-  var cdom = domFactory.CDOM;
-  console.log("cdom: ", cdom);
-
-  // features extractor
-
-  const duplicateCountsExtractor = new DuplicateCountsExtractor();
-  const leafBlockExtractor = new LeafBlockExtractor();
-  const nodeBlockExtractorForBlock = new NodeBlockExtractor();
-  const tagExtractor1 = new TagExtractor("node");
-  const combinedNodeTag = CombinedBlockExtractorFactory.apply(nodeBlockExtractorForBlock, tagExtractor1);
-  const ancestorExtractor1 = new AncestorExtractor(combinedNodeTag, 1);
-  const ancestorExtractor2 = new AncestorExtractor(nodeBlockExtractorForBlock, 2);
-  const rootExtractor = new RootExtractor(nodeBlockExtractorForBlock);
-  const tagExtractor2 = new TagExtractor("leaf");
-  
-  const allBlockFeatureExtractor = CombinedBlockExtractorFactory.apply(
-    duplicateCountsExtractor,
-    leafBlockExtractor,
-    ancestorExtractor1,
-    ancestorExtractor2,
-    rootExtractor,
-    tagExtractor2
-  );
-
-  
-  const treeDistanceExtractor = new TreeDistanceExtractor();
-  const blockBreakExtractor = new BlockBreakExtractor();
-  const nodeBlockExtractorForEdge = new NodeBlockExtractor();
-  const commonAncestorExtractor = new CommonAncestorExtractor(nodeBlockExtractorForEdge);
-
-  const allEdgeFeatureExtractor = CombinedEdgeExtractorFactory.apply(
-    treeDistanceExtractor,
-    blockBreakExtractor,
-    commonAncestorExtractor
-  );
-
-  const featureExtractor = new FeatureExtractor(allBlockFeatureExtractor, allEdgeFeatureExtractor);
-  const features = featureExtractor.apply(cdom);
-  console.log("features: ", features);
-
-}
-
-parseHTML();
-

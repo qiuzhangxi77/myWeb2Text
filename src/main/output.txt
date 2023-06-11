@@ -1,0 +1,12 @@
+Welcome to Example Page
+
+About Usclick Here
+
+This is a brief description of our company.
+	  Apple Inc. is a multinational technology company headquartered in Cupertino, California.  It is one of the world's largest and most renowned technology companies. Apple designs, develops, and sells consumer electronics, computer software, and online services.
+	
+
+Contact InformationEmail: info@example.comPhone: 123-456-7890
+
+Apple Example Page. All rights reserved.
+
