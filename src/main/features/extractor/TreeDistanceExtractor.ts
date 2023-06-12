@@ -7,6 +7,12 @@ import { EdgeFeatureExtractor } from '../EdgeFeatureExtractor.js'
 export class TreeDistanceExtractor implements EdgeFeatureExtractor {
   public labels: string[];
 
+  // e1 tree_distance_2
+  // e2 tree_distance_3
+  // e3 tree_distance_4
+  // e4 tree_distance_more
+  // 对应树距离为2、3、4和大于4
+  
   constructor() {
     this.labels = [
       "tree_distance_2",

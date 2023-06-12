@@ -4,26 +4,36 @@ import { CDOM } from "../../cdom/CDOM.js"
 import { Node } from "../../cdom/Node.js"
 
 export class NodeBlockExtractor implements BlockFeatureExtractor {
-  public labels: string[] = ["body_percentage",
-  "link_density",
-  "avg_word_length [3,15]",
-  "has_stopword",
-  "stopword_ratio",
-  "log(n_characters) [2.5,10]",
-  "log(punctuation_ratio)",
-  "has_numeric",
-  "numeric_ratio",
-  "log(avg_sentence_length) [2,5]",
-  "ends_with_punctuation",
-  "ends_with_question_mark",
-  "contains_copyright",
-  "contains_email",
-  "contains_url",
-  "contains_year",
-  "ratio_words_with_capital",
-  "ratio_words_with_capital^2",
-  "ratio_words_with_capital^3",
-  "contains_form_element"];
+  // b28 has parent 1/0: the CDOM leaf has a parent node
+  // b29 p body percentage ratio of the source code characters that is within the parent CDOM node
+  // b30 p link density ratio of characters within <a> elements to total character count
+  // b31–b47 parent features b6–b22, but for the parent CDOM node
+  // b48 p contains form element 1/0: the parent CDOM node contains a form elemen
+
+  // b69 has grandparent 1/0: the node has a grandparent CDOM node
+  // b70–b89 grandparent features b29–b48, but for the grandparent CDOM node
+  public labels: string[] = [
+    "body_percentage",
+    "link_density",
+    "avg_word_length [3,15]",
+    "has_stopword",
+    "stopword_ratio",
+    "log(n_characters) [2.5,10]",
+    "log(punctuation_ratio)",
+    "has_numeric",
+    "numeric_ratio",
+    "log(avg_sentence_length) [2,5]",
+    "ends_with_punctuation",
+    "ends_with_question_mark",
+    "contains_copyright",
+    "contains_email",
+    "contains_url",
+    "contains_year",
+    "ratio_words_with_capital",
+    "ratio_words_with_capital^2",
+    "ratio_words_with_capital^3",
+    "contains_form_element"
+  ];
 
   constructor() { }
 

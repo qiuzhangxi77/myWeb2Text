@@ -4,30 +4,57 @@ import { CDOM } from "../../cdom/CDOM.js"
 import { Node } from "../../cdom/Node.js"
 
 export class LeafBlockExtractor implements BlockFeatureExtractor {
-  public labels: string[] = ["has_word",
-  "log(n_words)",
-  "avg_word_length [3,15]",
-  "has_stopword",
-  "stopword_ratio",
-  "log(n_characters) [2.5,5.5]",
-  "contains_punctuation",
-  "n_punctuation [0,10]",
-  "log(punctuation_ratio)",
-  "has_numeric",
-  "numeric_ratio",
-  "log(avg_sentence_length) [2,5]",
-  "has_multiple_sentences",
-  "relative_position",
-  "relative_position^2",
-  "ends_with_punctuation",
-  "ends_with_question_mark",
-  "contains_copyright",
-  "contains_email",
-  "contains_url",
-  "contains_year",
-  "ratio_words_with_capital",
-  "ratio_words_with_capital^2",
-  "ratio_words_with_capital^3"];
+  // b4 has word 1/0: there is at least one word in the text block
+  // b5 log(n words) log(number of words) (clipped between 0 and 3.5)
+  // b6 avg word length average word length (clipped between 3 and 15
+  // b7 has stopword 1/0: block contains a stopword
+  // b8 stopword ratio ratio of words the are in our stopword list
+  // b9 log(n characters) log(number of characters) (clipped between 2.5 and 5.5)
+  // b10 log(punctuation ratio) log(ratio of of characters 2 f; ; ?; ; ; :; !g to the total) (clipped between -4 and -2.5)
+  // b11 has numeric 1/0: the node contains numeric characters
+  // b12 numeric ratio ratio of numeric characters to the total character count
+  // b13 log(avg sentence length) log(average sentence length) (clipped between 2 and 5)
+  // b14 ends with punctuation 1/0: the node ends with a character 2 f; ; ?; ; ; :; !g
+  // b15 ends with question mark 1/0: the node ends with a question mark
+  // b16 contains copyright 1/0: the node contains a copyright symbol
+  // b17 contains email 1/0: the node contains an email address
+  // b18 contains url 1/0: the node contains a URL
+  // b19 contains year 1/0: the node contains a word consisting of 4 digits
+  // b20 ratio words with capital ratio of words starting with a capital letter
+  // b21 ratio words with capital2 b25 squared
+  // b22 ratio words with capital3 b25 to the power 3
+  // b23 contains punctuation node contains a character 2 f; ; ?; ; ; :; !g
+  // b24 n punctuation number of characters 2 f; ; ?; ; ; :; !g
+  // b25 has multiple sentences 1/0: there are more than 1 sentences in the text
+  // b26 relative position relative position of the start of this block in the source code
+  // b27 relative position2 17 squared
+
+  public labels: string[] = [
+    "has_word",
+    "log(n_words)",
+    "avg_word_length [3,15]",
+    "has_stopword",
+    "stopword_ratio",
+    "log(n_characters) [2.5,5.5]",
+    "contains_punctuation",
+    "n_punctuation [0,10]",
+    "log(punctuation_ratio)",
+    "has_numeric",
+    "numeric_ratio",
+    "log(avg_sentence_length) [2,5]",
+    "has_multiple_sentences",
+    "relative_position",
+    "relative_position^2",
+    "ends_with_punctuation",
+    "ends_with_question_mark",
+    "contains_copyright",
+    "contains_email",
+    "contains_url",
+    "contains_year",
+    "ratio_words_with_capital",
+    "ratio_words_with_capital^2",
+    "ratio_words_with_capital^3"
+  ];
 
   constructor() { }
 

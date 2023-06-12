@@ -15,10 +15,13 @@ export class DuplicateCountsExtractor implements BlockFeatureExtractor  {
       const classCountMap = cdom.classSelectorCounts();
       const textCount = textCountMap.get(node.text);
       const classCount = classCountMap.get(node.classSelector());
+      // b1 has duplicate 1/0: is there another node with the same text
+      // b2 has 10 duplicates 1/0: are there at least 10 other nodes with the same text?
+      // b3 r same class path ratio of nodes on the page with the same class path (e.g. body>div>a.link>b)
       return [
-        textCount > 1 ? 1.0 : -1.0,
-        textCount > 10 ? 1.0 : -1.0,
-        Math.floor(classCount / cdom.leaves.length)
+        textCount > 1 ? 1.0 : 0,
+        textCount > 10 ? 1.0 : 0,
+        classCount / cdom.leaves.length
       ];
     }
   }

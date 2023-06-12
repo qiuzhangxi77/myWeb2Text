@@ -7,6 +7,7 @@ export class BlockBreakExtractor implements EdgeFeatureExtractor {
   public labels: string[];
 
   constructor() {
+    // // e5 Another feature signifies if there is a line break between the nodes in an unstyled HTML page
     this.labels = ["block_break"];
   }
 

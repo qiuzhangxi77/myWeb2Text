@@ -69,9 +69,16 @@ export function main_cdom(inputHtmlName: string) {
       tagExtractor2
     );
   
-    
+    // e1 tree_distance_2
+    // e2 tree_distance_3
+    // e3 tree_distance_4
+    // e4 tree_distance_more
     const treeDistanceExtractor = new TreeDistanceExtractor();
+    
+    // e5 Another feature signifies if there is a line break between the nodes in an unstyled HTML page
     const blockBreakExtractor = new BlockBreakExtractor();
+    
+    // e6-e25 collect features b70–b89 from Appendix A for the common ancestor CDOM node of the two text blocks
     const nodeBlockExtractorForEdge = new NodeBlockExtractor();
     const commonAncestorExtractor = new CommonAncestorExtractor(nodeBlockExtractorForEdge);
 

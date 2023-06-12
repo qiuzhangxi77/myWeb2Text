@@ -7,6 +7,8 @@ export class RootExtractor implements BlockFeatureExtractor {
   public prefix: string = "root_";
   public labels: string[];
 
+  // b90–b109 root features b29–b48, but for the root CDOM node (body)
+  
   constructor(public extractor: BlockFeatureExtractor) {
     this.extractor = extractor;
     this.labels = this.addPrefix(extractor.labels, this.prefix);
